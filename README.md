@@ -25,4 +25,3 @@ This project demonstrates data preprocessing, linear mixed model analysis, and v
 
 ```sh
 Rscript preprocessing_school_budgets.R
-
