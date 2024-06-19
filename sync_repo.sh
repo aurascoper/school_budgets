@@ -1,27 +1,47 @@
 #!/bin/bash
 
-# fxn to handle errors and exit the scirpt
+# Function to handle errors and exit the script
 handle_error() {
-	echo "Error: $1"
-	exit 1
+    echo "Error: $1"
+    exit 1
 }
 
-# pull the latest changes from the remote repository
-git pull origin main --allow-unrelated-histories || handle_error "failed to pull latest changes from remote repository"
+# Navigate to the repository
+cd ~/Projects/EngineeringDesign/school_budgets || handle_error "Failed to navigate to repository"
 
-# check for merge conflicts
+# Pull the latest changes from the remote repository
+git pull origin main --allow-unrelated-histories || handle_error "Failed to pull latest changes from remote repository"
+
+# Check for merge conflicts
 if grep -q '<<<<<<<' README.md; then
-	echo "Merge conflict detected in README.md. Please resolve manually."
-	exit 1
+    echo "Merge conflict detected in README.md. Please resolve manually."
+    exit 1
 fi
 
-# stage all changes
+# Add all files to the staging area
 git add . || handle_error "Failed to stage changes"
 
-# commit the changes
+# Commit the changes
 git commit -m "Sync local changes with remote repository" || handle_error "Failed to commit changes"
 
-# push changes to remote repository
- git push origin main || handle_error "Failed to push changes to remote repo"
+# Push changes to remote repository
+git push origin main || handle_error "Failed to push changes to remote repository"
 
 echo "Local repository successfully synced with remote repository. Bon s'affairres"
+
+# Optional: Automate merging process if needed
+while true; do
+    git pull origin main --allow-unrelated-histories || handle_error "Failed to pull latest changes from remote repository"
+    git add . || handle_error "Failed to stage changes"
+    git commit -m "Sync local changes with remote repository" || handle_error "Failed to commit changes"
+    git push origin main || handle_error "Failed to push changes to remote repository"
+    echo "Attempted to resolve and push changes. Checking for conflicts..."
+    
+    if grep -q '<<<<<<<' README.md; then
+        echo "Merge conflict detected in README.md. Please resolve manually."
+        exit 1
+    else
+        echo "Merge successful and repository is up-to-date. Bon s'affairres"
+        break
+    fi
+done
